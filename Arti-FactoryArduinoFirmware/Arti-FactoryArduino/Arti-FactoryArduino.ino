@@ -19,6 +19,7 @@ const uint8_t MS1_PIN = 5;
 const uint8_t MS2_PIN = 6;
 const uint16_t WAIT_TIME_MICROSECONDS = 100;
 const uint16_t STOP_TIME = 1000;
+const uint8_t SERVO_ENABLE_PIN = 42;
 
 void blinkLED();
 
@@ -33,8 +34,10 @@ void MoveServo(float newPosition)
 
 void setupServo()
 {
+  pinMode(SERVO_ENABLE_PIN, OUTPUT);
+  digitalWrite(SERVO_ENABLE_PIN, 1);
   
-
+  
 #if defined(__AVR_ATmega32U4__) || defined(SERIAL_PORT_USBVIRTUAL) || defined(SERIAL_USB) /*stm32duino*/|| defined(USBCON) /*STM32_stm32*/ \
     || defined(SERIALUSB_PID)  || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_attiny3217)
     delay(4000); // To be able to connect Serial monitor after reset or power up and before first print out. Do not wait for an attached Serial Monitor!
@@ -80,6 +83,9 @@ void setupStepperMotor()
 
 void setup() 
 {
+  pinMode(SERVO_ENABLE_PIN, OUTPUT);
+  digitalWrite(SERVO_ENABLE_PIN, 0);
+  
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
     

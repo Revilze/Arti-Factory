@@ -8,8 +8,8 @@ import tkinter as tk
 from PIL import Image, ImageTk
 
 #configuration of the run
-startingServoAngle = 75
-endingServoAngle = 75
+startingServoAngle = 45
+endingServoAngle = 45
 sevoAngleIncrement=5
 numberOfPicturesPerFullCircle = 100 #512 #256 #512 #must divide into 12800 evenly 
 #2, 4, 8, 16, 32, 64, 128, 256, 512, 800, 1600, 512*5
