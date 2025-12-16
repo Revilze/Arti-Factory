@@ -11,7 +11,7 @@ from PIL import Image, ImageTk
 startingServoAngle = 45
 endingServoAngle = 45
 sevoAngleIncrement=5
-numberOfPicturesPerFullCircle = 100 #512 #256 #512 #must divide into 12800 evenly 
+numberOfPicturesPerFullCircle = 160 #512 #256 #512 #must divide into 12800 evenly 
 #2, 4, 8, 16, 32, 64, 128, 256, 512, 800, 1600, 512*5
 specimenName = "Pepper corn"
 
@@ -132,7 +132,7 @@ def main():
     tt.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.75) # Set to manual exposure (0.75 is a common value for this)
     print(tt.cap.get(cv2.CAP_PROP_AUTO_EXPOSURE))
     print(tt.cap.get(cv2.CAP_PROP_EXPOSURE))
-    tt.cap.set(cv2.CAP_PROP_EXPOSURE, 60*8) #120 works good for the microscope #85 is no rolling bands in background for voCam 
+    tt.cap.set(cv2.CAP_PROP_EXPOSURE, 60*10) #120 works good for the microscope #85 is no rolling bands in background for voCam 
     print(tt.cap.get(cv2.CAP_PROP_EXPOSURE))
     
     print(tt.cap.get(cv2.CAP_PROP_AUTO_WB))
@@ -177,7 +177,7 @@ def main():
     # Example: "YYYY-MM-DD HH:MM:SS"
     datetime_string = now.strftime("%Y_%m_%d_%H_%M_%S")
     print(datetime_string)
-    nested_path = "~/Pictures/Arti-Factory/"+specimenName+"_"+datetime_string+"/"
+    nested_path = "/home/oliver/Pictures/Arti-Factory/"+specimenName+"_"+datetime_string+"/"
     os.makedirs(nested_path)
 
     servoStopsString="servo stops: "
