@@ -11,7 +11,7 @@ from PIL import Image, ImageTk
 startingServoAngle = 45
 endingServoAngle = 45
 sevoAngleIncrement=5
-numberOfPicturesPerFullCircle = 160 #512 #256 #512 #must divide into 12800 evenly 
+numberOfPicturesPerFullCircle = 100 #512 #256 #512 #must divide into 12800 evenly 
 #2, 4, 8, 16, 32, 64, 128, 256, 512, 800, 1600, 512*5
 specimenName = "Pepper corn"
 
@@ -28,9 +28,10 @@ def float_range(start, stop, step):
             current += step
 
 
-class TiltTurn():
+class ArtiFactory():
     def __init__(self):
         self.cap = None
+        
         try:
             # Open the serial port
             self.ser = serial.Serial(
@@ -50,8 +51,6 @@ class TiltTurn():
                 self.ser.close()
                 print(f"Serial port {port_name} closed.")
                 exit()    # Open the serial port
-        
-    
 
     def readData(self, amountToRead:int, timeout=2):
         self.ser.timeout = timeout
@@ -114,6 +113,36 @@ class TiltTurn():
             print(f"Image saved successfully as {filename}")
         else:
             print("Error: Could not read frame from camera.")
+
+    def setup_camera(self, camera_index):
+        self.cap = cv2.VideoCapture(camera_index, cv2.CAP_V4L2)
+        cv2.createAlignMTB()
+        print(self.cap.get(cv2.CAP_PROP_AUTO_EXPOSURE))
+        self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.75) # Set to manual exposure (0.75 is a common value for this)
+        print(self.cap.get(cv2.CAP_PROP_AUTO_EXPOSURE))
+        print(self.cap.get(cv2.CAP_PROP_EXPOSURE))
+        self.cap.set(cv2.CAP_PROP_EXPOSURE, 60*8) #120 works good for the microscope #85 is no rolling bands in background for voCam 
+        print(self.cap.get(cv2.CAP_PROP_EXPOSURE))
+        
+        print(self.cap.get(cv2.CAP_PROP_AUTO_WB))
+        #af.cap.set(cv2.CAP_PROP_AUTO_WB, 1.0)
+
+        # Set the desired frame width and height
+        # Common resolutions include:
+        # 640x480, 1280x720 (HD), 1920x1080 (Full HD)
+        desired_width = 1920
+        desired_height = 1080
+
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, desired_width)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, desired_height)
+
+        # Verify if the resolution was set (optional)
+        # Note: The actual resolution might be different if the camera doesn't support the requested size.
+        actual_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        actual_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        print(f"Actual frame resolution: {actual_width}x{actual_height}")
+
+
         
 def main():
     root = tk.Tk()
@@ -121,49 +150,21 @@ def main():
 
     image_label = tk.Label(root)
     image_label.pack()
-    tt = TiltTurn()
-    avaliableCameras = tt.list_available_cameras(5)
+    af = ArtiFactory()
+    avaliableCameras = af.list_available_cameras(5)
     print(avaliableCameras)
     camera_index = 2 #avaliableCameras[-1]
-    tt.cap = cv2.VideoCapture(camera_index, cv2.CAP_V4L2)
-    cv2.createAlignMTB()
-    
-    print(tt.cap.get(cv2.CAP_PROP_AUTO_EXPOSURE))
-    tt.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.75) # Set to manual exposure (0.75 is a common value for this)
-    print(tt.cap.get(cv2.CAP_PROP_AUTO_EXPOSURE))
-    print(tt.cap.get(cv2.CAP_PROP_EXPOSURE))
-    tt.cap.set(cv2.CAP_PROP_EXPOSURE, 60*10) #120 works good for the microscope #85 is no rolling bands in background for voCam 
-    print(tt.cap.get(cv2.CAP_PROP_EXPOSURE))
-    
-    print(tt.cap.get(cv2.CAP_PROP_AUTO_WB))
-    #tt.cap.set(cv2.CAP_PROP_AUTO_WB, 1.0)
-
-    # Set the desired frame width and height
-    # Common resolutions include:
-    # 640x480, 1280x720 (HD), 1920x1080 (Full HD)
-    desired_width = 1920
-    desired_height = 1080
-
-    tt.cap.set(cv2.CAP_PROP_FRAME_WIDTH, desired_width)
-    tt.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, desired_height)
-
-    # Verify if the resolution was set (optional)
-    # Note: The actual resolution might be different if the camera doesn't support the requested size.
-    actual_width = int(tt.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    actual_height = int(tt.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    print(f"Actual frame resolution: {actual_width}x{actual_height}")
-
-
+    af.setup_camera(camera_index)
     if(os.path.exists("pictures/")==False):
         os.makedirs("pictures/")
     for i in range(2):
         print("camera is warming up: " + str(2-i))
         filename = "pictures/warmup"+str(i)+".png"
-        tt.capture_webcam_image(filename)
+        af.capture_webcam_image(filename)
         time.sleep(0.25)
         
     # Check if the camera opened successfully
-    if not tt.cap.isOpened():
+    if not af.cap.isOpened():
         print(f"Error: Could not open camera with index {camera_index}.")
         return
     
@@ -177,7 +178,7 @@ def main():
     # Example: "YYYY-MM-DD HH:MM:SS"
     datetime_string = now.strftime("%Y_%m_%d_%H_%M_%S")
     print(datetime_string)
-    nested_path = "/home/oliver/Pictures/Arti-Factory/"+specimenName+"_"+datetime_string+"/"
+    nested_path = "~/Pictures/Arti-Factory/"+specimenName+"_"+datetime_string+"/"
     os.makedirs(nested_path)
 
     servoStopsString="servo stops: "
@@ -186,19 +187,18 @@ def main():
     print(servoStopsString)
 
     for curServoAngle in float_range(startingServoAngle, endingServoAngle+sevoAngleIncrement, sevoAngleIncrement):
-        tt.moveServo(curServoAngle)
+        af.moveServo(curServoAngle)
         for currentStepLocation in range(numberOfPicturesPerFullCircle):
             filename = nested_path+specimenName+"_"+str(curServoAngle)+"_"+str(currentStepLocation)+".png"
-            tt.capture_webcam_image(filename, numberOfFramesToDiscard)
-            tt.moveMotor(12800/numberOfPicturesPerFullCircle)
+            af.capture_webcam_image(filename, numberOfFramesToDiscard)
+            af.moveMotor(12800/numberOfPicturesPerFullCircle)
             original_image = Image.open(filename)
             current_tk_image = ImageTk.PhotoImage(original_image)
             image_label.config(image=current_tk_image)
             image_label.pack()
             root.update()
 
-    tt.cap.release()
-    #root.mainloop()
+    af.cap.release()
     return
 
 if __name__ == "__main__":
