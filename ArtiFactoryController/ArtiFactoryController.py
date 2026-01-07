@@ -5,6 +5,7 @@ import serial
 import time
 import cv2
 import tkinter as tk
+import PIL
 from PIL import Image, ImageTk
 
 #configuration of the run
@@ -130,11 +131,11 @@ class ArtiFactory():
         # Set the desired frame width and height
         # Common resolutions include:
         # 640x480, 1280x720 (HD), 1920x1080 (Full HD)
-        desired_width = 1920
-        desired_height = 1080
+        self.desired_width = 1920
+        self.desired_height = 1080
 
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, desired_width)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, desired_height)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.desired_width)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.desired_height)
 
         # Verify if the resolution was set (optional)
         # Note: The actual resolution might be different if the camera doesn't support the requested size.
@@ -142,8 +143,18 @@ class ArtiFactory():
         actual_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         print(f"Actual frame resolution: {actual_width}x{actual_height}")
 
+    def getImage(self):
+        ret, frame = self.cap.read()
+        if ret:
+            cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+            img = PIL.Image.fromarray(cv2image)
+            #img = Image.fromarray(cv2image)
+            imgtk = ImageTk.PhotoImage(image=img)
 
-        
+            return imgtk
+        return None
+            
 def main():
     root = tk.Tk()
     root.title("Image Display")
