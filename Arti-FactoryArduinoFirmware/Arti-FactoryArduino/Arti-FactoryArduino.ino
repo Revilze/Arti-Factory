@@ -8,7 +8,7 @@
 #include "ServoEasing.hpp"
 #include "PinDefinitionsAndMore.h"
 ServoEasing Servo1;
-#define START_DEGREE_VALUE  0 // The degree value written to the servo at time of attach.
+#define START_DEGREE_VALUE  140 // The degree value written to the servo at time of attach.
 
 
 //Stepper Motor

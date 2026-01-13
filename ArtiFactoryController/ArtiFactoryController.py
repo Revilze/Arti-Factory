@@ -59,7 +59,9 @@ class ArtiFactory():
         return received_data
 
     def moveServo(self, angle):
-        data_to_send = b"S"+str(angle).encode("utf-8")+b"\n"  # 'b' prefix for bytes
+        #-125 to 125
+        arduinoAngle = angle+140
+        data_to_send = b"S"+str(arduinoAngle).encode("utf-8")+b"\n"  # 'b' prefix for bytes
         print(data_to_send)
         self.ser.write(data_to_send)
         secondsToSleep = 2
