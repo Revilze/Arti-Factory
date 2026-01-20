@@ -54,9 +54,9 @@ class ArtiFactoryGUI():
         #Stepper Label
         self.StepperLabel = tk.Label(self.root, text="Stepper Settings:", font=self.boldLabelFont)
         
-        #Stepper Number of Pictures Per Full Circle
+        #Number of Pictures Per Full Circle
         acceptableStepsPerFullCircleValues = ["2", "4", "8", "16", "32", "50", "64", "100", "128", "256", "512", "800", "1280", "1600", "2560", "3200","6400", "12800"]
-        self.StepperNumPicsPerCircleLabel = tk.Label(self.root, text="Stepper Steps Per Full Circle", font=self.labelFont)
+        self.StepperNumPicsPerCircleLabel = tk.Label(self.root, text="Number of Pictures Per Full Circle", font=self.labelFont)
          # Create a StringVar to hold the selected number of pictures per full circle
         self.StepperNumPicsPerCircleString = tk.StringVar(self.root)
         self.StepperNumPicsPerCircleString.set("100") # Set the default value
